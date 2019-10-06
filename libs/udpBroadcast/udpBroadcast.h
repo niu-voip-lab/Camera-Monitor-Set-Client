@@ -16,10 +16,6 @@
 #include <string>
 #include <vector>
 
-struct S {
-    char a[10];
-};
-
 class UdpBroadcast {
 public:
     UdpBroadcast(uint16_t serverPort, char* hostName);

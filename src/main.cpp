@@ -6,8 +6,7 @@
 #include "audio.h"
 #include "utils.h"
 
-#include "udpBroadcast/udpBroadcast.h"
-#include "udpClient/udpClient.h"
+#include "tcpServer/tcpServer.h"
 
 using namespace std;
 
@@ -25,18 +24,27 @@ int id = 0;
 #include <arpa/inet.h>
 /////
 
+TcpServer *svr = NULL;
+
 int main(int argc, char **argv)
 {
-    vector<string> vec = UdpBroadcast::getAddrs();
-    UdpBroadcast* target[vec.size()];
-
-    char msg[] = "hello";
-
-    for(int i = 0; i < vec.size(); i++)
-    {
-        target[i] = new UdpBroadcast(6000, (char*) vec[i].c_str());
-        target[i]->sendMsg(msg, sizeof(msg)-1);
-    }
+    svr = new TcpServer(9000);
+    svr->setOnConnection([](struct sockaddr_in* client, int id){
+        char *paddr_str = inet_ntoa(client->sin_addr);
+        printf("\t[Info] Receive connection from %s...\n", paddr_str);
+    });
+    svr->setOnClose([](struct sockaddr_in* client, int id){
+        char *paddr_str = inet_ntoa(client->sin_addr);
+        cerr << paddr_str << " closed" << endl;
+    });
+    svr->setOnMessage([](struct sockaddr_in* client, int id, string msg){
+        cerr << msg << endl;
+        svr->sendMsg(id, (char*) msg.c_str(), msg.size());
+    });
+    svr->setAccept(true);
+    svr->start();
+    cerr << "NORMAL" << endl;
+    while(true){}
 
     // string dev(argv[1]);
     // int xres = atoi(argv[2]);
