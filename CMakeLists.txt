@@ -18,10 +18,13 @@ add_subdirectory (libs/performanceLib)
 include_directories ("${PROJECT_SOURCE_DIR}/libs/recordLib")
 add_subdirectory (libs/recordLib) 
 
+include_directories ("${PROJECT_SOURCE_DIR}/libs/udpBroadcast")
+add_subdirectory (libs/udpBroadcast) 
+
 include_directories("${PROJECT_SOURCE_DIR}/include")
 include_directories("${PROJECT_SOURCE_DIR}/libs")
 
 file(GLOB SOURCES "include/*.h" "src/*.cpp")
 
 add_executable (main ${SOURCES})
-target_link_libraries (main libv4l2cpp udpClient tcpClient performanceLib recordLib)
+target_link_libraries (main libv4l2cpp udpClient tcpClient performanceLib recordLib udpBroadcast)
