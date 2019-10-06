@@ -3,6 +3,10 @@ project (IPCam)
 
 set (CMAKE_CXX_STANDARD 11)
 
+if (CMAKE_LIBRARY_PATH)
+    link_directories(${CMAKE_LIBRARY_PATH})
+endif(CMAKE_LIBRARY_PATH)
+
 include_directories ("${PROJECT_SOURCE_DIR}/libs/libv4l2cpp")
 add_subdirectory (libs/libv4l2cpp) 
 
@@ -27,7 +31,13 @@ add_subdirectory (libs/tcpServer)
 include_directories("${PROJECT_SOURCE_DIR}/include")
 include_directories("${PROJECT_SOURCE_DIR}/libs")
 
+set(CMAKE_PREFIX_PATH "config")
+find_package(MRAA REQUIRED)
+if (MRAA_FOUND)
+    include_directories(${Mraa_INCLUDE_DIR})
+endif(MRAA_FOUND)  
+
 file(GLOB SOURCES "include/*.h" "src/*.cpp")
 
 add_executable (main ${SOURCES})
-target_link_libraries (main libv4l2cpp udpClient tcpClient performanceLib recordLib udpBroadcast tcpServer)
+target_link_libraries (main libv4l2cpp udpClient tcpClient performanceLib recordLib udpBroadcast tcpServer mraa)

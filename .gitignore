@@ -2,3 +2,4 @@
 builds/*
 !builds/.gitkeep
 libs/boost
+libs/mraa
