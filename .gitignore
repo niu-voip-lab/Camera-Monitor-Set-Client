@@ -1,0 +1,4 @@
+.vscode
+builds/*
+!builds/.gitkeep
+libs/boost
