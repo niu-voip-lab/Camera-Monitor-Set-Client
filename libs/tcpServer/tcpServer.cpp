@@ -61,7 +61,6 @@ void TcpServer::readMessage(struct sockaddr_in *addr, int id)
     n = read(id, buf, sizeof(buf));
     if(n == 0)
     {
-      // closeClient(id);
       onClose(addr, id);
       break;
     }
@@ -97,6 +96,12 @@ void TcpServer::wait(int sock0)
 void TcpServer::sendMsg(int id, char* __buf, size_t __n)
 {
   write(id, __buf, __n);
+}
+
+void TcpServer::sendMsg(int id, std::string msg)
+{
+  char *__buf = (char*) msg.c_str();
+  write(id, __buf, msg.size());
 }
 
 void TcpServer::closeClient(int id)

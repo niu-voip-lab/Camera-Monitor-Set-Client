@@ -1,5 +1,7 @@
 .vscode
 builds/*
 !builds/.gitkeep
+bin/*
+!bin/.gitkeep
 libs/boost
 libs/mraa

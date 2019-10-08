@@ -20,6 +20,7 @@ public:
     bool isAccept();
     void setAccept(bool flag);
     void sendMsg(int id, char* __buf, size_t __n);
+    void sendMsg(int id, std::string msg);
     std::vector<int> getClients();
 private:
     void init(int port);

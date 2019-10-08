@@ -6,6 +6,8 @@
 #include "audio.h"
 #include "utils.h"
 
+#include <signal.h>
+
 #include "connection.h"
 // #include "tcpServer/tcpServer.h"
 
@@ -16,37 +18,12 @@ using namespace std;
 
 int id = 0;
 
-/////
-// #include <stdio.h>      
-// #include <sys/types.h>
-// #include <ifaddrs.h>
-// #include <netinet/in.h> 
-// #include <string.h> 
-// #include <arpa/inet.h>
-/////
-
 // TcpServer *svr = NULL;
 
 int main(int argc, char **argv)
 {
-    connectToServer();
-    // svr = new TcpServer(9000);
-    // svr->setOnConnection([](struct sockaddr_in* client, int id){
-    //     char *paddr_str = inet_ntoa(client->sin_addr);
-    //     printf("\t[Info] Receive connection from %s...\n", paddr_str);
-    // });
-    // svr->setOnClose([](struct sockaddr_in* client, int id){
-    //     char *paddr_str = inet_ntoa(client->sin_addr);
-    //     cerr << paddr_str << " closed" << endl;
-    // });
-    // svr->setOnMessage([](struct sockaddr_in* client, int id, string msg){
-    //     cerr << msg << endl;
-    //     svr->sendMsg(id, (char*) msg.c_str(), msg.size());
-    // });
-    // svr->setAccept(true);
-    // svr->start();
-    // cerr << "NORMAL" << endl;
-    // while(true){}
+    struct config cfg;
+    connectToServer(&cfg);
 
     // string dev(argv[1]);
     // int xres = atoi(argv[2]);
@@ -92,7 +69,6 @@ int main(int argc, char **argv)
     //         lastTime = now;
     //     }
     // }
-
 
     return 0;
 }

@@ -1,1 +1,12 @@
-int connectToServer();
+#include <string>
+
+using namespace std;
+
+struct config
+{
+    string videoDevice, audioDevice1, audioDevice2;
+    string videoUrl, audioUrl1, audioUrl2;
+    int xres = -1, yres = -1, fps = -1;
+};
+
+void connectToServer(struct config *cfg_in);
