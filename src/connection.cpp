@@ -107,6 +107,43 @@ string msg_ok = "OK",
 
 volatile sig_atomic_t flag = 1;
 
+void blinkAsc(int id, int ns, int n)
+{
+    thread *blinkThread = new thread(blink, id, ns, n);
+}
+
+void blink(int id, int ns, int n=1)
+{
+    for(int i = 0; i < n; i++)
+    {
+        setLed(id, HIGH);
+        usleep(ns);
+        setLed(id, LOW);
+        usleep(ns);
+    }
+}
+
+void setLed(int id, int status)
+{
+    if(status != HIGH && status != LOW)
+    {
+        return;
+    }
+
+    switch (id)
+    {
+    case LED_GREEN:
+        gpio_led_green->write(status);
+        break;
+    case LED_RED:
+        gpio_led_red->write(status);
+    case LED_YELLOW:
+        gpio_led_yellow->write(status);
+    default:
+        break;
+    }
+}
+
 void markError();
 
 float get_angle(float angle)
@@ -322,7 +359,8 @@ void broadcast(int ms)
                 {
                     ubs[i]->sendMsg((char *) message.c_str(), message.size());
                 }
-                usleep(1000000);
+                // usleep(1000000);
+                blink(LED_YELLOW, 500000);
                 if(getTime() - startTime >= ms)
                 {
                     startBroadcast = false;

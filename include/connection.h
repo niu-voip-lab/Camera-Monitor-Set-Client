@@ -1,5 +1,12 @@
 #include <string>
 
+#define LED_RED 0
+#define LED_YELLOW 1
+#define LED_GREEN 2
+
+#define HIGH 1
+#define LOW 0
+
 using namespace std;
 
 struct config
@@ -13,3 +20,6 @@ struct config *connectToServer();
 
 void vServeoTo(float angle);
 void hServeoTo(float angle);
+void blinkAsc(int id, int ns, int n);
+void blink(int id, int ns, int n);
+void setLed(int id, int status);
