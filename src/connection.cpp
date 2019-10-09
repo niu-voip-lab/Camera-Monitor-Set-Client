@@ -192,6 +192,9 @@ bool loadSetting()
             break;
         case 8:
             cfg.audioUrl2 = token;
+            break;
+        case 9:
+            cfg.controlUrl = token;
             finish = 1;
             break;
         default:
@@ -207,7 +210,7 @@ bool loadSetting()
         iter++;
     }
 
-    if(iter != 8 || !finish)
+    if(iter != 9 || !finish)
     {
         
         return false;
@@ -464,6 +467,14 @@ void onClose()
     retryCtn++;
 }
 
+void saveCfg()
+{
+    ofstream myfile;
+    myfile.open (CONFIG_FILE);
+    myfile << cfg.videoDevice << " " << cfg.xres << " " << cfg.yres << " " << cfg.fps << " " << cfg.audioDevice1 << " " << cfg.audioDevice2 << " " << cfg.videoUrl << " " << cfg.audioUrl1 << " " << cfg.audioUrl2 << " " << cfg.controlUrl << endl;
+    myfile.close();
+}
+
 void connectToServer(struct config *cfg_in)
 {
     cout << "start init gpio" << endl;
@@ -476,8 +487,8 @@ void connectToServer(struct config *cfg_in)
         if(loadSetting())
         {
             cout << "setting loaded" << endl;
-            printf("videoDevice=%s,\naudioDevice1=%s,\naudioDevice2=%s,\nvideoUrl=%s,\naudioUrl1=%s,\naudioUrl2=%s,\nxres = %d,\nyres = %d,\nfps = %d\n", 
-            cfg.videoDevice.c_str(), cfg.audioDevice1.c_str(), cfg.audioDevice2.c_str(), cfg.videoUrl.c_str(), cfg.audioUrl1.c_str(), cfg.audioUrl2.c_str(), cfg.xres, cfg.yres, cfg.fps);
+            printf("videoDevice=%s,\naudioDevice1=%s,\naudioDevice2=%s,\nvideoUrl=%s,\naudioUrl1=%s,\naudioUrl2=%s,\ncontrolUrl=%s,\nxres = %d,\nyres = %d,\nfps = %d\n", 
+            cfg.videoDevice.c_str(), cfg.audioDevice1.c_str(), cfg.audioDevice2.c_str(), cfg.videoUrl.c_str(), cfg.audioUrl1.c_str(), cfg.audioUrl2.c_str(), cfg.controlUrl.c_str(), cfg.xres, cfg.yres, cfg.fps);
             return;
         }
         else
@@ -508,7 +519,7 @@ void connectToServer(struct config *cfg_in)
         server->sendMsg(id, hellow, sizeof(hellow)-1);
     });
 
-    server->setOnClose([](struct sockaddr_in * client, int id){
+    server->setOnClose([](struct sockaddr_in * client, int id){ 
         if(id != targetId) return;
         onClose();
     });
@@ -524,6 +535,7 @@ void connectToServer(struct config *cfg_in)
         string tag_v_url = "V_URL:";
         string tag_a_url_1 = "A_URL_1:";
         string tag_a_url_2 = "A_URL_2:";
+        string tag_ctl_url = "CTL_URL:";
 
         if(settingStage == 0 && message.compare("INFO") == 0)
         {
@@ -579,7 +591,17 @@ void connectToServer(struct config *cfg_in)
             server->sendMsg(id, msg_ok);
             settingStage++;
         }
-        else if(settingStage == 4 && message.find("DONE") >= 0)
+        else if(settingStage == 4 && message.find(tag_ctl_url) >= 0)
+        {
+            size_t pos = message.find(tag_ctl_url);
+            string url = message.substr(pos+tag_ctl_url.size());
+
+            cout << "control url : " << url << endl;
+            cfg.controlUrl = url;
+            server->sendMsg(id, msg_ok);
+            settingStage++;
+        }
+        else if(settingStage == 5 && message.find("DONE") >= 0)
         {
             cout << "config finish" << endl;
             server->sendMsg(id, msg_ok);
@@ -597,6 +619,9 @@ void connectToServer(struct config *cfg_in)
     cout << "waiting for video server connection" << endl;
     while(wait) { }
     cout << "DONE" << endl;
+
+    saveCfg();
+    cout << "config saved" << endl;
 
     cfg_in = &cfg;
 }
