@@ -6,8 +6,6 @@
 #include "audio.h"
 #include "utils.h"
 
-#include <signal.h>
-
 #include "connection.h"
 // #include "tcpServer/tcpServer.h"
 

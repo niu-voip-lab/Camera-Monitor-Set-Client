@@ -41,3 +41,9 @@ file(GLOB SOURCES "include/*.h" "src/*.cpp")
 
 add_executable (main ${SOURCES})
 target_link_libraries (main libv4l2cpp udpClient tcpClient performanceLib recordLib udpBroadcast tcpServer mraa)
+
+# failover
+
+file(GLOB SOURCES "src/failover/*.cpp")
+
+add_executable (failover ${SOURCES})
