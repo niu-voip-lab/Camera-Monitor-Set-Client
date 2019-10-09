@@ -62,6 +62,15 @@ std::string to_string(const T& value) {
 #define DEFAULT_AUDIO_RIGHT_ID 2
 #define DEFAULT_AUDIO_DEVICE_NAME "USB PnP Sound Device"
 
+#define SERVO_ANGLE_MIN 0
+#define SERVO_ANGLE_MAX 180
+#define SERVO_PEROID 20
+#define SERVO_MOVE_STEP 0.0002
+
+#define DUTY_CYCLE_MIN 0.5
+#define DUTY_CYCLE_MAX 2.5
+
+
 using namespace std;
 
 struct config cfg;
@@ -82,6 +91,9 @@ int errorFlag = 0;
 int doneFlag = 0;
 int retryCtn = 0;
 
+float currentVAngle = 0.075f;
+float currentHAngle = 0.075f;
+
 string msg_ok = "OK",
     msg_error = "ERROR",
     msg_stage_error = "STAGE_ERROR",
@@ -96,6 +108,70 @@ string msg_ok = "OK",
 volatile sig_atomic_t flag = 1;
 
 void markError();
+
+float get_angle(float angle)
+{
+    if(angle > SERVO_ANGLE_MAX || angle < SERVO_ANGLE_MIN)
+    {
+        angle = (SERVO_ANGLE_MAX + SERVO_ANGLE_MIN) / 2;
+    }
+    float d1 = angle - SERVO_ANGLE_MIN;
+    float d2 = SERVO_ANGLE_MAX - SERVO_ANGLE_MIN;
+    float ratio = d1 / d2;
+    float d3 = DUTY_CYCLE_MAX - DUTY_CYCLE_MIN;
+    float result = DUTY_CYCLE_MIN + (d3*ratio);
+    return result / SERVO_PEROID;
+}
+
+void vServeoTo(float angle)
+{
+    angle = angle + 90;
+    float target = get_angle(angle);
+    if(target - currentVAngle > 0)
+    {
+        while(target - currentVAngle > 0)
+        {
+            currentVAngle = currentVAngle - SERVO_MOVE_STEP;
+            pwm_servo_v->write(currentVAngle);
+            usleep(5000);
+        }
+    }
+    else if(target - currentVAngle < 0)
+    {
+        while(target - currentVAngle < 0)
+        {
+            currentVAngle = currentVAngle + SERVO_MOVE_STEP;
+            pwm_servo_v->write(currentVAngle);
+            usleep(5000);
+        }
+    }
+}
+
+void hServeoTo(float angle)
+{
+    angle = angle + 90;
+    cout << "ANGLE " << angle << endl;
+    float target = get_angle(angle);
+    cout << "TARGET " << target << endl;
+    if(target - currentHAngle > 0)
+    {
+        while(target - currentHAngle > 0)
+        {
+            currentHAngle = currentHAngle + SERVO_MOVE_STEP;
+            pwm_servo_h->write(currentHAngle);
+            usleep(5000);
+        }
+    }
+    else if(target - currentHAngle < 0)
+    {
+        while(target - currentHAngle < 0)
+        {
+            currentHAngle = currentHAngle - SERVO_MOVE_STEP;
+            pwm_servo_h->write(currentHAngle);
+            usleep(5000);
+        }
+    }
+}
 
 void sig_handler(int signum)
 {
@@ -303,8 +379,8 @@ void init()
         printError(status);
     }
 
-    pwm_servo_h->period_ms(20);
-    pwm_servo_v->period_ms(20);
+    pwm_servo_h->period_ms(SERVO_PEROID);
+    pwm_servo_v->period_ms(SERVO_PEROID);
 
     status = pwm_servo_h->enable(true);
     if (status != mraa::SUCCESS) {
@@ -317,14 +393,13 @@ void init()
     }
 
     // // To Zero
-    // gpio_led_red->write(0);
-    // gpio_led_yellow->write(0);
-    // gpio_led_green->write(0);
+    pwm_servo_h->write(0.075);
+    usleep(5000000);
+    pwm_servo_v->write(0.075);
+    usleep(5000000);
 
-    // usleep(2000000);
-    // pwm_servo_h->write(0.075);
-    // usleep(2000000);
-    // pwm_servo_v->write(0.075);
+    currentVAngle = 0.075f;
+    currentHAngle = 0.075f;
 }
 
 string loadVideoDevice(string name)

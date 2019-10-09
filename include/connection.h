@@ -10,3 +10,6 @@ struct config
 };
 
 struct config *connectToServer();
+
+void vServeoTo(float angle);
+void hServeoTo(float angle);

@@ -22,6 +22,14 @@ int main(int argc, char **argv)
 {
     struct config *cfg = connectToServer();
 
+    while(true)
+    {
+        float angle;
+        cout << "ANGLE : ";
+        cin >> angle;
+        hServeoTo(angle);
+    }
+
     string dev(cfg->videoDevice);
     int xres = cfg->xres;
     int yres = cfg->yres;

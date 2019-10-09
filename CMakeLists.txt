@@ -44,6 +44,5 @@ target_link_libraries (main libv4l2cpp udpClient tcpClient performanceLib record
 
 # failover
 
-file(GLOB SOURCES "src/failover/*.cpp")
-
-add_executable (failover ${SOURCES})
+file(GLOB SOURCES_FAILOVER "src/failover/*.cpp")
+add_executable (failover ${SOURCES_FAILOVER})
