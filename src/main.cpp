@@ -20,53 +20,54 @@ int id = 0;
 
 int main(int argc, char **argv)
 {
-    struct config cfg;
-    connectToServer(&cfg);
+    struct config *cfg = connectToServer();
 
-    // string dev(argv[1]);
-    // int xres = atoi(argv[2]);
-    // int yres = atoi(argv[3]);
-    // int fps = atoi(argv[4]);
-    // string audioDevice = argv[5];
-    // string audioDevice2 = argv[6];
-    // string vUrl(argv[7]);
-    // string aUrl(argv[8]);
-    // string aUrl2(argv[9]);
+    string dev(cfg->videoDevice);
+    int xres = cfg->xres;
+    int yres = cfg->yres;
+    int fps = cfg->fps;
+    string audioDevice = cfg->audioDevice1;
+    string audioDevice2 = cfg->audioDevice2;
+    string vUrl = cfg->videoUrl;
+    string aUrl = cfg->audioUrl1;
+    string aUrl2 = cfg->audioUrl2;
 
-    // Video video(dev, xres, yres, fps);
-    // Audio audio(audioDevice);
-    // Audio audio2(audioDevice2);
+    Video video(dev, xres, yres, fps);
+    Audio audio(audioDevice);
+    Audio audio2(audioDevice2);
 
-    // video.start(vUrl);
-    // cerr << "video start" << endl;
-    // audio.start(aUrl, 15000);
-    // cerr << "audio1 start" << endl;
-    // audio2.start(aUrl2, 15000);
-    // cerr << "audio2 start" << endl;
+    video.start(vUrl);
+    cerr << "video start" << endl;
+    audio.start(aUrl, 15000);
+    cerr << "audio1 start" << endl;
+    audio2.start(aUrl2, 15000);
+    cerr << "audio2 start" << endl;
 
-    // int id = 0;
-    // long long lastTime = 0;
-    // while(true)
-    // {
-    //     long long now = getTime();
-    //     if(now - lastTime > ID_LIFE_TIME)
-    //     {
-    //         video.setId(id);
-    //         audio.setId(id);
-    //         audio2.setId(id);
+    cout << "\nrecording\n" << endl;
 
-    //         if(id >= ID_CIRCLE)
-    //         {
-    //             id = 0;
-    //         }
-    //         else
-    //         {
-    //             id++;
-    //         }
+    int id = 0;
+    long long lastTime = 0;
+    while(true)
+    {
+        long long now = getTime();
+        if(now - lastTime > ID_LIFE_TIME)
+        {
+            video.setId(id);
+            audio.setId(id);
+            audio2.setId(id);
+
+            if(id >= ID_CIRCLE)
+            {
+                id = 0;
+            }
+            else
+            {
+                id++;
+            }
             
-    //         lastTime = now;
-    //     }
-    // }
+            lastTime = now;
+        }
+    }
 
     return 0;
 }

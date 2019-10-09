@@ -9,4 +9,4 @@ struct config
     int xres = -1, yres = -1, fps = -1;
 };
 
-void connectToServer(struct config *cfg_in);
+struct config *connectToServer();

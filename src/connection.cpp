@@ -475,7 +475,7 @@ void saveCfg()
     myfile.close();
 }
 
-void connectToServer(struct config *cfg_in)
+struct config *connectToServer()
 {
     cout << "start init gpio" << endl;
     init();
@@ -489,7 +489,7 @@ void connectToServer(struct config *cfg_in)
             cout << "setting loaded" << endl;
             printf("videoDevice=%s,\naudioDevice1=%s,\naudioDevice2=%s,\nvideoUrl=%s,\naudioUrl1=%s,\naudioUrl2=%s,\ncontrolUrl=%s,\nxres = %d,\nyres = %d,\nfps = %d\n", 
             cfg.videoDevice.c_str(), cfg.audioDevice1.c_str(), cfg.audioDevice2.c_str(), cfg.videoUrl.c_str(), cfg.audioUrl1.c_str(), cfg.audioUrl2.c_str(), cfg.controlUrl.c_str(), cfg.xres, cfg.yres, cfg.fps);
-            return;
+            return &cfg;
         }
         else
         {
@@ -623,5 +623,5 @@ void connectToServer(struct config *cfg_in)
     saveCfg();
     cout << "config saved" << endl;
 
-    cfg_in = &cfg;
+    return &cfg;
 }
