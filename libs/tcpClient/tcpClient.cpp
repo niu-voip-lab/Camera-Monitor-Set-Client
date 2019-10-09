@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <thread>
 
 using namespace std;
 
@@ -45,7 +46,14 @@ void TcpClient::init(string ip, int port)
     int err = connect(this->sockfd,(struct sockaddr *)&info,sizeof(info));
     if(err==-1){
         cerr << "Connection error" << endl;
+    } else {
+        std::thread *thd = new std::thread(&TcpClient::readMessage, this, (struct sockaddr_in *)&info, (int) sockfd);
     }
+}
+
+void TcpClient::setOnMessage(void (*mesg)(struct sockaddr_in *, int, std::string))
+{
+  this->onMessage = mesg;
 }
 
 ssize_t TcpClient::sendMsg(char* __buf, size_t __n)
@@ -59,4 +67,22 @@ ssize_t TcpClient::sendMsg(std::string msg)
     char* __buf = (char*) msg.c_str();
     size_t __n = msg.size();
     this->sendMsg(__buf, __n);
+}
+
+void TcpClient::readMessage(struct sockaddr_in *addr, int id)
+{
+  while (true)
+  {
+    int n;
+    char buf[4096];
+    std::string msg("");
+
+    n = read(id, buf, sizeof(buf));
+    if(n == 0)
+    {
+      break;
+    }
+    msg += std::string(buf);
+    onMessage(addr, id, msg);
+  }
 }

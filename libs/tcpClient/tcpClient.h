@@ -20,8 +20,11 @@ public:
     TcpClient(std::string);
     ssize_t sendMsg(char* __buf, size_t __n);
     ssize_t sendMsg(std::string msg);
+    void setOnMessage(void (*)(struct sockaddr_in* addr, int, std::string));
 private:
     int sockfd = 0;
     void init(std::string, int);
+    void readMessage(struct sockaddr_in* addr, int id);
+    void (*onMessage)(struct sockaddr_in*, int, std::string);
 };
 #endif
