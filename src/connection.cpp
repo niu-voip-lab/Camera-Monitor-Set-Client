@@ -665,7 +665,7 @@ void reportAngle(int servo)
         return;
     }
     
-    controlClient->sendMsg(msg + to_string(angle));
+    controlClient->sendMsg(msg + to_string(angle) + ";");
 }
 
 struct config *_connectToServer()
