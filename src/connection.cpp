@@ -32,6 +32,7 @@ std::string to_string(const T& value) {
 #include "mraa/gpio.hpp"
 #include "mraa/pwm.hpp"
 
+#include "tcpClient/tcpClient.h"
 #include "udpBroadcast/udpBroadcast.h"
 #include "tcpServer/tcpServer.h"
 
@@ -40,6 +41,9 @@ std::string to_string(const T& value) {
 #define GPIO_LED_YELLOW 45 /* Yellow */
 #define GPIO_LED_RED 46 /* Red */
 #define GPIO_BUTTON 12 /* Button */
+
+#define SERVO_V 0
+#define SERVO_H 1
 
 #define PWM_SERVO_V 18 /* Vertical */
 #define PWM_SERVO_H 19 /* Horizontal */
@@ -69,7 +73,6 @@ std::string to_string(const T& value) {
 
 #define DUTY_CYCLE_MIN 0.5
 #define DUTY_CYCLE_MAX 2.5
-
 
 using namespace std;
 
@@ -106,6 +109,9 @@ string msg_ok = "OK",
     msg_audio_device_2 = "AUDIO_DEVICE_2";
 
 volatile sig_atomic_t flag = 1;
+TcpClient *controlClient = NULL;
+
+void reportAngle(int servo);
 
 void blinkAsc(int id, int ns, int n)
 {
@@ -160,6 +166,16 @@ float get_angle(float angle)
     return result / SERVO_PEROID;
 }
 
+float get_angle_inv(float pwm_data)
+{
+    float dx = pwm_data * SERVO_PEROID;
+    float d3 = DUTY_CYCLE_MAX - DUTY_CYCLE_MIN;
+    float ratio = (dx-DUTY_CYCLE_MIN) / d3;
+    float d2 = SERVO_ANGLE_MAX - SERVO_ANGLE_MIN;
+    float d1 = ratio * d2;
+    return d1 + SERVO_ANGLE_MIN;
+}
+
 void vServeoTo(float angle)
 {
     angle = angle + 90;
@@ -170,6 +186,7 @@ void vServeoTo(float angle)
         {
             currentVAngle = currentVAngle - SERVO_MOVE_STEP;
             pwm_servo_v->write(currentVAngle);
+            reportAngle(SERVO_V);
             usleep(5000);
         }
     }
@@ -179,6 +196,7 @@ void vServeoTo(float angle)
         {
             currentVAngle = currentVAngle + SERVO_MOVE_STEP;
             pwm_servo_v->write(currentVAngle);
+            reportAngle(SERVO_V);
             usleep(5000);
         }
     }
@@ -196,6 +214,7 @@ void hServeoTo(float angle)
         {
             currentHAngle = currentHAngle + SERVO_MOVE_STEP;
             pwm_servo_h->write(currentHAngle);
+            reportAngle(SERVO_H);
             usleep(5000);
         }
     }
@@ -205,6 +224,7 @@ void hServeoTo(float angle)
         {
             currentHAngle = currentHAngle - SERVO_MOVE_STEP;
             pwm_servo_h->write(currentHAngle);
+            reportAngle(SERVO_H);
             usleep(5000);
         }
     }
@@ -431,10 +451,10 @@ void init()
     }
 
     // // To Zero
-    pwm_servo_h->write(0.075);
-    usleep(5000000);
-    pwm_servo_v->write(0.075);
-    usleep(5000000);
+    // pwm_servo_h->write(0.075);
+    // usleep(5000000);
+    // pwm_servo_v->write(0.075);
+    // usleep(5000000);
 
     currentVAngle = 0.075f;
     currentHAngle = 0.075f;
@@ -588,7 +608,67 @@ void saveCfg()
     myfile.close();
 }
 
-struct config *connectToServer()
+string controlVStr = "V_ANG:";
+string controlHStr = "H_ANG:";
+void handleServerCommand()
+{
+    if(controlClient == NULL)
+    {
+        cout << "CREATE CONTROL URL" << endl;
+        controlClient = new TcpClient(cfg.controlUrl);
+    }
+    
+    controlClient->setOnMessage([](struct sockaddr_in* addr, int id, std::string message){
+        int pos;
+        if((pos = message.find(controlVStr)) != std::string::npos)
+        {
+            size_t pos = message.find(controlVStr);
+            string data = message.substr(pos+controlVStr.size());
+            float angle = atof(data.c_str());
+
+            std::cout << "server CMD : vertical servo angle change to : " << angle << endl;
+            vServeoTo(angle);
+            server->sendMsg(id, msg_ok);
+        } else if((pos = message.find(controlHStr)) != std::string::npos)
+        {
+            size_t pos = message.find(controlHStr);
+            string data = message.substr(pos+controlHStr.size());
+            float angle = atof(data.c_str());
+
+            std::cout << "server CMD : horizontal servo angle change to : " << angle << endl;
+            hServeoTo(angle);
+            server->sendMsg(id, msg_ok);
+        }
+    });    
+    controlClient->sendMsg("OK");
+    reportAngle(SERVO_V);
+    reportAngle(SERVO_H);
+}
+
+void reportAngle(int servo)
+{
+    if(controlClient == NULL) return;
+    float angle;
+    string msg;
+    if(servo == SERVO_V)
+    {
+        msg = controlVStr;
+        angle = get_angle_inv(currentVAngle) - 90;
+    }
+    else if(servo == SERVO_H)
+    {
+        msg = controlHStr;
+        angle = get_angle_inv(currentHAngle) - 90;
+    }
+    else
+    {
+        return;
+    }
+    
+    controlClient->sendMsg(msg + to_string(angle));
+}
+
+struct config *_connectToServer()
 {
     cout << "start init gpio" << endl;
     init();
@@ -674,7 +754,7 @@ struct config *connectToServer()
                 server->closeClient(id);
             }            
         }
-        else if(settingStage == 1 && message.find(tag_v_url) >= 0)
+        else if(settingStage == 1 && message.find(tag_v_url) != std::string::npos)
         {
             size_t pos = message.find(tag_v_url);
             string url = message.substr(pos+tag_v_url.size());
@@ -684,7 +764,7 @@ struct config *connectToServer()
             server->sendMsg(id, msg_ok);
             settingStage++;
         }
-        else if(settingStage == 2 && message.find(tag_a_url_1) >= 0)
+        else if(settingStage == 2 && message.find(tag_a_url_1) != std::string::npos)
         {
             size_t pos = message.find(tag_a_url_1);
             string url = message.substr(pos+tag_a_url_1.size());
@@ -694,7 +774,7 @@ struct config *connectToServer()
             server->sendMsg(id, msg_ok);
             settingStage++;
         }
-        else if(settingStage == 3 && message.find(tag_a_url_2) >= 0)
+        else if(settingStage == 3 && message.find(tag_a_url_2) != std::string::npos)
         {
             size_t pos = message.find(tag_a_url_2);
             string url = message.substr(pos+tag_a_url_2.size());
@@ -704,7 +784,7 @@ struct config *connectToServer()
             server->sendMsg(id, msg_ok);
             settingStage++;
         }
-        else if(settingStage == 4 && message.find(tag_ctl_url) >= 0)
+        else if(settingStage == 4 && message.find(tag_ctl_url) != std::string::npos)
         {
             size_t pos = message.find(tag_ctl_url);
             string url = message.substr(pos+tag_ctl_url.size());
@@ -714,7 +794,7 @@ struct config *connectToServer()
             server->sendMsg(id, msg_ok);
             settingStage++;
         }
-        else if(settingStage == 5 && message.find("DONE") >= 0)
+        else if(settingStage == 5 && message.find("DONE") != std::string::npos)
         {
             cout << "config finish" << endl;
             server->sendMsg(id, msg_ok);
@@ -737,4 +817,12 @@ struct config *connectToServer()
     cout << "config saved" << endl;
 
     return &cfg;
+}
+
+struct config *connectToServer()
+{
+    struct config *_cfg = _connectToServer();
+    cout << "handling server command" << endl;
+    handleServerCommand();
+    return _cfg;
 }
