@@ -719,6 +719,7 @@ struct config *_connectToServer()
 
     server->setOnMessage([](struct sockaddr_in * client, int id, std::string message){
         if(doneFlag) return;
+        char *paddr_str = inet_ntoa(client->sin_addr); 
         if(targetId != id)
         {
             server->closeClient(id);
@@ -758,6 +759,7 @@ struct config *_connectToServer()
         {
             size_t pos = message.find(tag_v_url);
             string url = message.substr(pos+tag_v_url.size());
+            url = string(paddr_str) + ":" + url;
 
             std::cout << "video url : " << url << endl;
             cfg.videoUrl = url;
@@ -768,6 +770,7 @@ struct config *_connectToServer()
         {
             size_t pos = message.find(tag_a_url_1);
             string url = message.substr(pos+tag_a_url_1.size());
+            url = string(paddr_str) + ":" + url;
 
             cout << "audio url 1 : " << url << endl;
             cfg.audioUrl1 = url;
@@ -778,6 +781,7 @@ struct config *_connectToServer()
         {
             size_t pos = message.find(tag_a_url_2);
             string url = message.substr(pos+tag_a_url_2.size());
+            url = string(paddr_str) + ":" + url;
 
             cout << "audio url 2 : " << url << endl;
             cfg.audioUrl2 = url;
@@ -788,6 +792,7 @@ struct config *_connectToServer()
         {
             size_t pos = message.find(tag_ctl_url);
             string url = message.substr(pos+tag_ctl_url.size());
+            url = string(paddr_str) + ":" + url;
 
             cout << "control url : " << url << endl;
             cfg.controlUrl = url;
