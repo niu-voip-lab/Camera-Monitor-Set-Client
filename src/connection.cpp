@@ -179,12 +179,14 @@ float get_angle_inv(float pwm_data)
 void vServeoTo(float angle)
 {
     angle = angle + 90;
+    cout << "ANGLE " << angle << endl;
     float target = get_angle(angle);
+    cout << "TARGET " << target << endl;
     if(target - currentVAngle > 0)
     {
         while(target - currentVAngle > 0)
         {
-            currentVAngle = currentVAngle - SERVO_MOVE_STEP;
+            currentVAngle = currentVAngle + SERVO_MOVE_STEP;
             pwm_servo_v->write(currentVAngle);
             reportAngle(SERVO_V);
             usleep(5000);
@@ -194,7 +196,7 @@ void vServeoTo(float angle)
     {
         while(target - currentVAngle < 0)
         {
-            currentVAngle = currentVAngle + SERVO_MOVE_STEP;
+            currentVAngle = currentVAngle - SERVO_MOVE_STEP;
             pwm_servo_v->write(currentVAngle);
             reportAngle(SERVO_V);
             usleep(5000);
@@ -451,10 +453,13 @@ void init()
     }
 
     // // To Zero
-    // pwm_servo_h->write(0.075);
-    // usleep(5000000);
+    // cout << "V to Zero" << endl;
+    // usleep(2000000);
     // pwm_servo_v->write(0.075);
-    // usleep(5000000);
+    // cout << "H to Zero" << endl;
+    // usleep(2000000);
+    // pwm_servo_h->write(0.075);
+    // usleep(1000000);
 
     currentVAngle = 0.075f;
     currentHAngle = 0.075f;

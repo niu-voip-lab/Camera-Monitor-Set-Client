@@ -75,6 +75,7 @@ void TcpClient::readMessage(struct sockaddr_in *addr, int id)
   {
     int n;
     char buf[4096];
+    memset(buf, '\0', 4096);
     std::string msg("");
 
     n = read(id, buf, sizeof(buf));
