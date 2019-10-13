@@ -664,11 +664,13 @@ void reportAngle(int servo)
     {
         msg = controlVStr;
         angle = get_angle_inv(currentVAngle) - 90;
+        if(SERVO_V_INVERSE) angle = angle * -1;
     }
     else if(servo == SERVO_H)
     {
         msg = controlHStr;
         angle = get_angle_inv(currentHAngle) - 90;
+        if(SERVO_H_INVERSE) angle = angle * -1;
     }
     else
     {
