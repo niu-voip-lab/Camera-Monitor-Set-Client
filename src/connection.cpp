@@ -71,6 +71,9 @@ std::string to_string(const T& value) {
 #define SERVO_PEROID 20
 #define SERVO_MOVE_STEP 0.0002
 
+#define SERVO_V_INVERSE false
+#define SERVO_H_INVERSE true
+
 #define DUTY_CYCLE_MIN 0.5
 #define DUTY_CYCLE_MAX 2.5
 
@@ -178,6 +181,7 @@ float get_angle_inv(float pwm_data)
 
 void vServeoTo(float angle)
 {
+    if(SERVO_V_INVERSE) angle = angle * -1;
     angle = angle + 90;
     cout << "ANGLE " << angle << endl;
     float target = get_angle(angle);
@@ -206,6 +210,7 @@ void vServeoTo(float angle)
 
 void hServeoTo(float angle)
 {
+    if(SERVO_H_INVERSE) angle = angle * -1;
     angle = angle + 90;
     cout << "ANGLE " << angle << endl;
     float target = get_angle(angle);
