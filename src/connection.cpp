@@ -71,7 +71,7 @@ std::string to_string(const T& value) {
 #define SERVO_PEROID 20
 
 #define SERVO_V_STEP 0.0002
-#define SERVO_H_STEP 0.0001
+#define SERVO_H_STEP 0.00015
 
 #define SERVO_V_INVERSE false
 #define SERVO_H_INVERSE true
