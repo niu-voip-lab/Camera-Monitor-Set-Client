@@ -460,13 +460,13 @@ void init()
     }
 
     // // To Zero
-    // cout << "V to Zero" << endl;
-    // usleep(2000000);
-    // pwm_servo_v->write(0.075);
-    // cout << "H to Zero" << endl;
-    // usleep(2000000);
-    // pwm_servo_h->write(0.075);
-    // usleep(1000000);
+    cout << "V to Zero" << endl;
+    usleep(1000000);
+    pwm_servo_v->write(0.075);
+    cout << "H to Zero" << endl;
+    usleep(1000000);
+    pwm_servo_h->write(0.075);
+    usleep(1000000);
 
     currentVAngle = 0.075f;
     currentHAngle = 0.075f;
@@ -841,7 +841,9 @@ struct config *_connectToServer()
 struct config *connectToServer()
 {
     struct config *_cfg = _connectToServer();
+    setLed(LED_GREEN, HIGH);
     cout << "handling server command" << endl;
     handleServerCommand();
+    setLed(LED_GREEN, LOW);
     return _cfg;
 }
