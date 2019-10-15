@@ -69,7 +69,9 @@ std::string to_string(const T& value) {
 #define SERVO_ANGLE_MIN 0
 #define SERVO_ANGLE_MAX 180
 #define SERVO_PEROID 20
-#define SERVO_MOVE_STEP 0.0002
+
+#define SERVO_V_STEP 0.0002
+#define SERVO_H_STEP 0.0001
 
 #define SERVO_V_INVERSE false
 #define SERVO_H_INVERSE true
@@ -190,7 +192,7 @@ void vServeoTo(float angle)
     {
         while(target - currentVAngle > 0)
         {
-            currentVAngle = currentVAngle + SERVO_MOVE_STEP;
+            currentVAngle = currentVAngle + SERVO_V_STEP;
             pwm_servo_v->write(currentVAngle);
             reportAngle(SERVO_V);
             usleep(5000);
@@ -200,7 +202,7 @@ void vServeoTo(float angle)
     {
         while(target - currentVAngle < 0)
         {
-            currentVAngle = currentVAngle - SERVO_MOVE_STEP;
+            currentVAngle = currentVAngle - SERVO_V_STEP;
             pwm_servo_v->write(currentVAngle);
             reportAngle(SERVO_V);
             usleep(5000);
@@ -219,7 +221,7 @@ void hServeoTo(float angle)
     {
         while(target - currentHAngle > 0)
         {
-            currentHAngle = currentHAngle + SERVO_MOVE_STEP;
+            currentHAngle = currentHAngle + SERVO_H_STEP;
             pwm_servo_h->write(currentHAngle);
             reportAngle(SERVO_H);
             usleep(5000);
@@ -229,7 +231,7 @@ void hServeoTo(float angle)
     {
         while(target - currentHAngle < 0)
         {
-            currentHAngle = currentHAngle - SERVO_MOVE_STEP;
+            currentHAngle = currentHAngle - SERVO_H_STEP;
             pwm_servo_h->write(currentHAngle);
             reportAngle(SERVO_H);
             usleep(5000);
