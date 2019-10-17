@@ -82,6 +82,8 @@
 
     ```bash
     $ mkdir mt7688
+
+    $ cd mt7688
     ```
 
 5. Use `cmake` to generate the `Makefile`
