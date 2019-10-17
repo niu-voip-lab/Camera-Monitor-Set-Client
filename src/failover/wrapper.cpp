@@ -9,6 +9,9 @@
 
 #include <signal.h>
 
+#include <unistd.h>
+#include <sys/reboot.h>
+
 volatile sig_atomic_t flag = 1;
 
 void sig_handler(int signum)
@@ -34,7 +37,7 @@ int main(int argc, char **argv)
 
     bool flag_wait;
 
-    while(true)
+    for(int i = 0; i < 5; i++)
     {
         flag_wait = true;
         c_pid = fork(); //duplicate
@@ -68,6 +71,11 @@ int main(int argc, char **argv)
         sleep(1);
         std::cout << "----------\n\nrestart\n\n----------" << std::endl;
     }
+
+    std::cout << "----------\n\ntoo main ERROR, reboot\n\n----------" << std::endl;
+
+    sync();
+    reboot(RB_AUTOBOOT);
 
     return 0; //success                                                                                                                                                        
 }
