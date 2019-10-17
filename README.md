@@ -55,6 +55,8 @@
     SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
     ```
 
+8. Press `ctrl+o` and `enter` to save the file. Then press `ctrl+x` to exit.
+
 ### Raspberry Pi
 (TAB)
 
