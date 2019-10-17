@@ -35,6 +35,7 @@ void Video::start(string tcpUrl)
 void Video::stop()
 {
     this->run = false;
+    videoCapture->stop();
     this->recordThread->join();
 }
 
@@ -87,6 +88,14 @@ void Video::record(string tcpUrl)
         {
             char buffer[bufferSize];
             size_t nb = videoCapture->read(buffer, bufferSize);
+
+            if(nb == -1) {
+                videoCapture->stop();
+                sleep(1);
+                init(this->device, this->resX, this->resY, this->fps);
+                sleep(1);
+                continue;
+            }
 
             char start[] = "-2\n-2\n";
             client.sendMsg(start, sizeof(start)-1);

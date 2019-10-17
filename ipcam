@@ -1,0 +1,14 @@
+#!/bin/sh /etc/rc.common
+# put this file in /etc/init.d/ipcam
+ 
+START=100
+STOP=10
+ 
+start() {        
+        echo start
+        /root/failover /root/main &
+}                 
+ 
+stop() {          
+        echo stop
+}
