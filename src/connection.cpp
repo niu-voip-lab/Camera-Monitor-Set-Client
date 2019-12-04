@@ -532,9 +532,9 @@ string loadAudioDevice(int id, string deviceName)
     }
     else
     {
-        string msg = "audio device " + to_string(id) + " error : " + "device name not match";
+        string msg = "audio device " + to_string(id) + " warning : " + "device name not match";
         cout << msg << endl;
-        return msg;
+        // return msg;
     }
     
     return "";
